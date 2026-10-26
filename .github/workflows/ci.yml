@@ -20,7 +20,7 @@ jobs:
   # Detect which files changed to enable path-based filtering
   changes:
     name: Detect changes
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     outputs:
       nix: ${{ steps.filter.outputs.nix }}
     steps:
@@ -42,7 +42,7 @@ jobs:
 
   test_matrix:
     name: Test (${{ matrix.label }})
-    runs-on: ${{ matrix.os }}
+    runs-on: "${{ (matrix.os) == 'ubuntu-latest' && fromJSON('[\"self-hosted\",\"linux\",\"x64\"]') || (matrix.os) == 'macos-latest' && fromJSON('[\"self-hosted\",\"macOS\",\"ARM64\"]') || (matrix.os) == 'windows-latest' && fromJSON('[\"self-hosted\",\"windows\",\"x64\"]') || (matrix.os) }}"
     timeout-minutes: 15
     if: github.event_name == 'pull_request' || github.event_name == 'merge_group' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     strategy:
@@ -106,7 +106,7 @@ jobs:
 
   test_pr_required:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     needs: [test_matrix]
     if: always() && (github.event_name == 'pull_request' || github.event_name == 'merge_group')
     steps:
@@ -120,7 +120,7 @@ jobs:
 
   lint:
     name: Lint & Type Check
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -159,7 +159,7 @@ jobs:
 
   nix-flake-validate:
     name: Nix Flake Validation
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     timeout-minutes: 10
     needs: changes
     if: needs.changes.outputs.nix == 'true'
@@ -219,7 +219,7 @@ jobs:
 
   validate-changesets:
     name: Validate Release Tracking
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
     steps:
       - name: Checkout code
@@ -269,7 +269,7 @@ jobs:
 
   required-checks-pr:
     name: All checks passed
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     needs: [test_matrix, lint, nix-flake-validate]
     if: always() && (github.event_name == 'pull_request' || github.event_name == 'merge_group')
     steps:
@@ -295,7 +295,7 @@ jobs:
 
   required-checks-main:
     name: All checks passed
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     needs: [test_matrix, lint, nix-flake-validate]
     if: always() && github.event_name == 'push'
     steps:

@@ -17,7 +17,7 @@ concurrency:
 jobs:
   prepare:
     if: github.repository == 'Fission-AI/OpenSpec' && github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       # Generate GitHub App token first - used for checkout and changesets
       # This allows git operations to trigger CI workflows on the version PR
@@ -68,7 +68,7 @@ jobs:
   # Users opt in with: npm install -g @fission-ai/openspec@beta
   beta:
     if: github.repository == 'Fission-AI/OpenSpec' && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - uses: actions/checkout@v4
         with:
